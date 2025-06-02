@@ -1,7 +1,13 @@
+// TaskForm.js (Updated for Redux)
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../styles/TaskForm.module.css";
+import { addTask, updateTask, clearTaskToEdit } from "../redux/taskSlice";
 
-export default function TaskForm({ onAdd, onUpdate, taskToEdit, onCancel }) {
+export default function TaskForm() {
+  const dispatch = useDispatch();
+  const taskToEdit = useSelector((state) => state.tasks.taskToEdit);
+
   const [task, setTask] = useState({
     name: "",
     description: "",
@@ -51,9 +57,9 @@ export default function TaskForm({ onAdd, onUpdate, taskToEdit, onCancel }) {
     };
 
     if (taskToEdit) {
-      onUpdate({ ...taskToEdit, ...newTask });
+      dispatch(updateTask({ ...taskToEdit, ...newTask }));
     } else {
-      onAdd(newTask);
+      dispatch(addTask(newTask));
     }
 
     setTask({
@@ -63,6 +69,10 @@ export default function TaskForm({ onAdd, onUpdate, taskToEdit, onCancel }) {
       priority: "Medium",
     });
     setError("");
+  };
+
+  const handleCancel = () => {
+    dispatch(clearTaskToEdit());
   };
 
   return (
@@ -124,7 +134,7 @@ export default function TaskForm({ onAdd, onUpdate, taskToEdit, onCancel }) {
           <button
             type="button"
             className={styles.cancelBtn}
-            onClick={onCancel}
+            onClick={handleCancel}
           >
             Cancel
           </button>

@@ -1,52 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import BackgroundAnimation from "./components/BackgroundAnimation";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import styles from "./styles/App.module.css";
+import {
+  addTask,
+  updateTask,
+  deleteTask,
+  toggleTaskComplete ,
+} from "./redux/taskSlice";
 
 export default function App() {
-  const [tasks, setTasks] = useState(() => {
-    const storedTasks = localStorage.getItem("tasks");
-    return storedTasks ? JSON.parse(storedTasks) : [];
-  });
+  const tasks = useSelector((state) => state.tasks.tasks);
+  const dispatch = useDispatch();
 
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [filter, setFilter] = useState("All"); // All | Completed | Incomplete
   const [sortBy, setSortBy] = useState(""); // "" | "priority" | "dueDate"
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
-
-  const addTask = (task) => {
-    setTasks((prev) => [
-      ...prev,
-      { ...task, id: Date.now(), completed: false },
-    ]);
+  const handleAddTask = (task) => {
+    dispatch(addTask(task));
   };
 
-  const updateTask = (updatedTask) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-      )
-    );
+  const handleUpdateTask = (updatedTask) => {
+    dispatch(updateTask(updatedTask));
     setTaskToEdit(null);
   };
 
-  const deleteTask = (id) => {
+  const handleDeleteTask = (id) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      dispatch(deleteTask(id));
       if (taskToEdit?.id === id) setTaskToEdit(null);
     }
   };
 
-  const toggleComplete = (id) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleToggleComplete = (id) => {
+    dispatch(toggleTaskComplete(id));
   };
 
   const editTask = (task) => {
@@ -100,16 +90,16 @@ export default function App() {
         </div>
 
         <TaskForm
-          onAdd={addTask}
-          onUpdate={updateTask}
+          onAdd={handleAddTask}
+          onUpdate={handleUpdateTask}
           taskToEdit={taskToEdit}
           onCancel={cancelEdit}
         />
 
         <TaskList
           tasks={getFilteredSortedTasks()}
-          onDelete={deleteTask}
-          onToggleComplete={toggleComplete}
+          onDelete={handleDeleteTask}
+          onToggleComplete={handleToggleComplete}
           onEdit={editTask}
         />
       </div>

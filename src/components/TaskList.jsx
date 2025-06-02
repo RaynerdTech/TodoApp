@@ -1,8 +1,17 @@
+// TaskList.js (Updated for Redux)
 import React from "react";
+import { useDispatch } from "react-redux";
 import TaskItem from "./TaskItem";
 import styles from "../styles/TaskList.module.css";
+import {
+  deleteTask,
+  toggleTaskComplete,
+  setTaskToEdit,
+} from "../redux/taskSlice";
 
-export default function TaskList({ tasks, onDelete, onEdit, onToggleComplete }) {
+export default function TaskList({ tasks }) {
+  const dispatch = useDispatch();
+
   return (
     <div>
       {tasks.length === 0 ? (
@@ -13,9 +22,9 @@ export default function TaskList({ tasks, onDelete, onEdit, onToggleComplete }) 
             <TaskItem
               key={task.id}
               task={task}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              onToggleComplete={onToggleComplete}
+              onDelete={() => dispatch(deleteTask(task.id))}
+              onEdit={() => dispatch(setTaskToEdit(task))}
+              onToggleComplete={() => dispatch(toggleTaskComplete(task.id))}
             />
           ))}
         </div>
